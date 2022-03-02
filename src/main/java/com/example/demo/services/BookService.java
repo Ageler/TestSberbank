@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 @Service
@@ -25,8 +26,13 @@ public class BookService {
     public Map<String, Long> booksByFirstLetterStatistics() {
         List<Book> books = bookRepository.findAll();
         Map<String, Long> bookStatistic = new HashMap<>();
-        for (String character: alphabet) {
-            bookStatistic.put(character, books.stream().filter(book -> book.getName().startsWith(character)).count());
+        for (Book book: books) {
+           String key  = String.valueOf(book.getName().toLowerCase(Locale.ROOT).charAt(0));
+           if(!bookStatistic.containsKey(key)) {
+               bookStatistic.put(key, 1l);
+           } else {
+               bookStatistic.computeIfPresent(key, (k, v)-> {v = v + 1; return v;});
+           }
         }
         return bookStatistic;
     }
